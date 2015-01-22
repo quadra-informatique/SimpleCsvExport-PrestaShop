@@ -1,0 +1,8 @@
+Message de {shop_name}
+
+Export CSV de la commande n°{order_id}
+Exporté le {time}
+Fichier : {filename}
+
+{shop_name}
+{shop_url}
