@@ -28,7 +28,7 @@ class Simplecsvexport extends Module
 	{
 		$this->name = 'simplecsvexport';
 		$this->tab = 'back_office_features';
-		$this->version = '1.1.0';
+		$this->version = '1.2.0';
 		$this->author = 'Quadra Informatique';
 		$this->displayName = $this->l('Simple csv export order');
 		$this->description = $this->l('This module will generate csv export order files');
