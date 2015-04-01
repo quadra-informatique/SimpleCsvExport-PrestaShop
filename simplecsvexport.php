@@ -1,9 +1,8 @@
 <?php
-
 /**
  * ---------------------------------------------------------------------------------
  *
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -14,25 +13,26 @@
  * obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 1.0.0 $
- * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @author    Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
+ * @version Release: $Revision: 1.3.0 $
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *
  * ---------------------------------------------------------------------------------
  */
+
 class Simplecsvexport extends Module
 {
 
 	public function __construct()
 	{
 		$this->name = 'simplecsvexport';
-		$this->tab = 'back_office_features';
-		$this->version = '1.2.0';
+		$this->tab = 'administration';
+		$this->version = '1.3.0';
 		$this->author = 'Quadra Informatique';
 		$this->displayName = $this->l('Simple csv export order');
 		$this->description = $this->l('This module will generate csv export order files');
-		parent :: __construct();
+		parent::__construct();
 	}
 
 	public function install()
@@ -44,55 +44,56 @@ class Simplecsvexport extends Module
 
 	public function getContent()
 	{
+		$errors = array();
 		$this->_html = '<h2>'.$this->displayName.'</h2>';
 
 		/* Update values in DB */
 		if (Tools::isSubmit('submitExportCSV'))
 		{
-			$sendCopy = (int)Tools::getValue('send_copy');
+			$send_copy = (int)Tools::getValue('send_copy');
 			$email = (string)Tools::getValue('email');
 
-			if (!Validate::isInt($sendCopy) || !Validate::isString($email))
-			{
+			if (!Validate::isInt($send_copy) || !Validate::isString($email))
 				$errors[] = $this->l('Invalid data');
-			}
 			else
 			{
-				Configuration::updateValue('PS_SCE_SEND_COPY', $sendCopy);
+				Configuration::updateValue('PS_SCE_SEND_COPY', $send_copy);
 				Configuration::updateValue('PS_SCE_EMAIL', $email);
 			}
 
-			if (isset($errors) AND sizeof($errors))
+			if (isset($errors) && count($errors))
 				$this->_html .= $this->displayError(implode('<br />', $errors));
 			else
 				$this->_html .= $this->displayConfirmation($this->l('Settings updated'));
 		}
 
-		$this->_displayForm();
+		$this->displayForm();
 		return $this->_html;
 	}
 
-	private function _displayForm()
+	private function displayForm()
 	{
-
 		$this->_html .= '
             <form action="'.$_SERVER['REQUEST_URI'].'" method="post">
                 <fieldset class="width3">
                     <legend><img src="'.$this->_path.'logo.gif" />'.$this->l('Automatic export parameters').'</legend>
                     <label>'.$this->l('Send a copy by email').'</label>
                     <div class="margin-form">
-                        <input type="radio" name="send_copy" id="send_copy_on" value="1" '.(Configuration::get('PS_SCE_SEND_COPY') ? 'checked="checked" ' : '').'/>
+                        <input type="radio" name="send_copy" id="send_copy_on" 
+						value="1" '.(Configuration::get('PS_SCE_SEND_COPY') ? 'checked="checked" ' : '').'/>
                         <label class="t" for="send_copy_on">
                             <img src="../img/admin/enabled.gif" alt="'.$this->l('Yes').'" title="'.$this->l('Yes').'" />
                         </label>
-                        <input type="radio" name="send_copy" id="send_copy_off" value="0"  '.(!Configuration::get('PS_SCE_SEND_COPY') ? 'checked="checked" ' : '').'/>
+                        <input type="radio" name="send_copy" id="send_copy_off" 
+						value="0"  '.(!Configuration::get('PS_SCE_SEND_COPY') ? 'checked="checked" ' : '').'/>
                         <label class="t" for="send_copy_off">
                             <img src="../img/admin/disabled.gif" alt="'.$this->l('No').'" title="'.$this->l('No').'" />
                         </label>
                     </div>
                     <label>'.$this->l('Email').'</label>
                     <div class="margin-form">
-                        <input type="text" name="email" id="email" value="'.(Configuration::get('PS_SCE_EMAIL') ? Configuration::get('PS_SCE_EMAIL') : '' ).'" style="width: 335px" />
+                        <input type="text" name="email" id="email" 
+						value="'.(Configuration::get('PS_SCE_EMAIL') ? Configuration::get('PS_SCE_EMAIL') : '' ).'" style="width: 335px" />
                     </div>
                     <div class="margin-form">
                         <input type="submit" name="submitExportCSV" value="'.$this->l('Save').'" class="button" />
@@ -112,39 +113,35 @@ class Simplecsvexport extends Module
 	{
 		$id_lang_en = LanguageCore::getIdByIso('en');
 		$id_lang_fr = LanguageCore::getIdByIso('fr');
-		$id_root_tab = Tab::getIdFromClassName('ccas_export_tab');
-		if (!$id_root_tab)
-			$this->installModuleTab('csv_export_tab', array($id_lang_fr => 'Export csv', $id_lang_en => 'Export csv'), '0');
-		$id_root_tab = Tab::getIdFromClassName('csv_export_tab');
-		$this->installModuleTab('AdminManageExportOrder', array($id_lang_fr => 'Export des commandes', $id_lang_en => 'Order export'), $id_root_tab);
+		$this->installModuleTab('AdminManageexportorder', array($id_lang_fr => 'Export des commandes', $id_lang_en => 'Order export'), 10);
 		return true;
 	}
 
-	private function uninstallModuleTab($tabClass)
+	private function uninstallModuleTab($tab_class)
 	{
-		$idTab = Tab::getIdFromClassName($tabClass);
-		if ($idTab != 0)
+		$id_tab = Tab::getIdFromClassName($tab_class);
+		if ($id_tab != 0)
 		{
-			$tab = new Tab($idTab);
+			$tab = new Tab($id_tab);
 			$tab->delete();
 			return true;
 		}
 		return false;
 	}
 
-	private function installModuleTab($tabClass, $tabName, $idTabParent)
+	private function installModuleTab($tab_class, $tab_name, $id_tab_parent)
 	{
 		$tab = new Tab();
-		$tab->name = $tabName;
-		$tab->class_name = $tabClass;
+		$tab->name = $tab_name;
+		$tab->class_name = $tab_class;
 		$tab->module = $this->name;
-		$tab->id_parent = (int)($idTabParent);
+		$tab->id_parent = (int)$id_tab_parent;
 		if (!$tab->save())
 			return false;
 		return true;
 	}
 
-	function hookAdminOrder($params)
+	public function hookAdminOrder($params)
 	{
 		$link = new Link();
 
@@ -158,7 +155,7 @@ class Simplecsvexport extends Module
 		{
 			if ((int)Tools::getValue('export_csv'))
 			{
-				$this->_sendExportByEmail($params);
+				$this->sendExportByEmail($params);
 				$html .= '<div class="panel"><div class="clear">&nbsp;</div>
                         <div class="conf">
                             <img alt="" src="../img/admin/ok2.png">
@@ -172,18 +169,15 @@ class Simplecsvexport extends Module
 
 	public function hookPostUpdateOrderStatus($params)
 	{
-
 		if ($params['newOrderStatus']->id == Configuration::get('PS_OS_PAYMENT'))
-		{
-			$this->_sendExportByEmail($params);
-		}
+			$this->sendExportByEmail($params);
 	}
 
-	protected function _sendExportByEmail($params)
+	protected function sendExportByEmail($params)
 	{
 		if (Configuration::get('PS_SCE_SEND_COPY'))
 		{
-
+			$csv_header_sent = false;
 			$orders = Db::getInstance()->ExecuteS('
                 SELECT
                     o.id_order AS order_id,
@@ -257,19 +251,15 @@ class Simplecsvexport extends Module
 				foreach (array('product_price', 'product_weight', 'product_tax_rate', 'product_ecotax',
 			'product_discount_quantity_applied', 'total_discounts', 'total_paid', 'total_paid_real',
 			'total_products', 'total_products_wt', 'total_shipping', 'total_wrapping') as $field)
-				{
-					$row[$field] = str_replace(".", ",", $row[$field]);
-				}
+					$row[$field] = str_replace('.', ',', $row[$field]);
 
 				//phone format
 				foreach (array('invoice_phone', 'invoice_phone_mobile', 'delivery_phone', 'delivery_phone_mobile') as $field)
-				{
-					$row[$field] = @ereg_replace('[^0-9]', '', $row[$field]).' ';
-				}
+					$row[$field] = preg_replace('[^0-9]', '', $row[$field]).' ';
 
 				//csv header
-				if (!isset($csvHeaderSent))
-					$csvHeaderSent = fputcsv($stdout, array_keys($row), ';', '"');
+				if (!$csv_header_sent)
+					$csv_header_sent = fputcsv($stdout, array_keys($row), ';', '"');
 				//write line
 				fputcsv($stdout, $row, ';', '"');
 			}
@@ -281,17 +271,15 @@ class Simplecsvexport extends Module
 				'{order_id}' => (int)$params['id_order'],
 				'{time}' => str_replace('_', ' ', $time),
 				'{filename}' => $filename
-					), strval(Configuration::get('PS_SCE_EMAIL')), NULL, strval(Configuration::get('PS_SHOP_EMAIL')), strval(Configuration::get('PS_SHOP_NAME')), array(
-				'content' => file_get_contents(_PS_MODULE_DIR_.'simplecsvexport/'.$filename),
+					), Configuration::get('PS_SCE_EMAIL'), null, Configuration::get('PS_SHOP_EMAIL'), Configuration::get('PS_SHOP_NAME'), array(
+				'content' => Tools::file_get_contents(_PS_MODULE_DIR_.'simplecsvexport/'.$filename),
 				'name' => $filename,
 				'mime' => 'text/csv'
-					), NULL, dirname(__FILE__).'/mails/'
+					), null, dirname(__FILE__).'/mails/'
 			);
 
 			if (file_exists(_PS_MODULE_DIR_.'simplecsvexport/'.$filename))
-			{
 				unlink(_PS_MODULE_DIR_.'simplecsvexport/'.$filename);
-			}
 		}
 	}
 
